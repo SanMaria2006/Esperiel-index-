@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Esperiel Index - Tome of Resonance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<!-- Html2Canvas Library for generating snapshot images of the result card -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --parchment-dark: #120e0a;
+    --parchment-base: #1f1812;
+    --parchment-light: #2c221a;
+    --ink-gold: #dfc288;
+    --ink-faded: #bfa878;
+    --magic-glow: rgba(223, 194, 136, 0.15);
+  }
+
+  body {
+    background-color: var(--parchment-dark);
+    color: var(--ink-gold);
+    font-family: 'IM Fell English', Georgia, serif;
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 50% 30%, rgba(54, 40, 28, 0.8) 0%, transparent 70%),
+      url('https://www.transparenttextures.com/patterns/aged-paper.png');
+    box-sizing: border-box;
+  }
+
+  .tome-container {
+    width: 100%;
+    max-width: 650px;
+    padding: 24px;
+    box-sizing: border-box;
+    position: relative;
+    background: var(--parchment-base);
+    border: 3px double var(--ink-gold);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 25px rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+    margin: 10px auto;
+  }
+
+  @media (max-width: 480px) {
+    .tome-container {
+      padding: 15px;
+    }
+    .hero-title {
+      font-size: 22px !important;
+    }
+  }
+
+  .tome-container::before, .tome-container::after {
+    content: "✦";
+    position: absolute;
+    color: var(--ink-gold);
+    font-size: 16px;
+    opacity: 0.6;
+  }
+  .tome-container::before { top: 10px; left: 10px; }
+  .tome-container::after { top: 10px; right: 10px; }
+
+  .screen {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .screen.active {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Intro Section */
+  #intro {
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .tome-header {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--ink-faded);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 26px;
+    line-height: 1.3;
+    color: var(--ink-gold);
+    margin: 0 0 15px 0;
+    text-shadow: 0 0 12px rgba(223, 194, 136, 0.3);
+  }
+
+  .lede {
+    font-size: 16px;
+    font-style: italic;
+    line-height: 1.5;
+    color: #d1c2a5;
+    margin-bottom: 25px;
+  }
+
+  .dims-preview {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .dim-chip {
+    background: #19130e;
+    border: 1px solid #4a3b2c;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--ink-faded);
+    font-style: italic;
+  }
+
+  .spell-seal {
+    background: var(--parchment-light);
+    border: 1px solid var(--ink-faded);
+    padding: 20px;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.5);
+  }
+
+  .btn-magical {
+    background: transparent;
+    border: 2px solid var(--ink-gold);
+    color: var(--ink-gold);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    letter-spacing: 1.5px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    width: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
+  }
+
+  .btn-magical:hover {
+    background: var(--ink-gold);
+    color: var(--parchment-dark);
+    box-shadow: 0 0 15px var(--ink-gold);
+  }
+
+  .meta-scroll {
+    font-style: italic;
+    font-size: 12px;
+    color: #9a8a70;
+    margin-top: 12px;
+  }
+
+  /* Trial Section */
+  .prophecy-tracker {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-faded);
+    margin-bottom: 15px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .parchment-page {
+    background: var(--parchment-light);
+    border: 1px solid var(--ink-faded);
+    padding: 20px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+    margin-bottom: 15px;
+  }
+
+  .scroll-dimension {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #a38f68;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .scroll-question {
+    font-family: Georgia, serif;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #f8f1e5;
+    margin-bottom: 20px;
+  }
+
+  .scroll-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .scroll-option-btn {
+    background: #19130e;
+    border: 1px solid #4a3b2c;
+    color: #e2d4bc;
+    padding: 10px 14px;
+    text-align: left;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .scroll-option-btn:hover {
+    border-color: var(--ink-gold);
+    color: var(--ink-gold);
+    background: #261d15;
+    box-shadow: 0 0 8px var(--magic-glow);
+  }
+
+  /* Results Section */
+  .results-page {
+    text-align: center;
+    padding: 0;
+  }
+
+  /* Snapshot Card Wrapper Target - Structured for 9:16 Instagram Story Ratio (e.g., 1080 x 1920 scaled down) */
+  #shareableCard {
+    background: var(--parchment-base);
+    padding: 30px 20px;
+    border: 2px solid var(--ink-gold);
+    width: 320px;
+    height: 568px; /* Exact 9:16 aspect ratio bounds */
+    margin: 0 auto 15px auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .results-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 18px;
+    color: var(--ink-gold);
+    margin: 5px 0;
+  }
+
+  .results-subtitle {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-style: italic;
+    color: #d1c2a5;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .radar-box {
+    background: var(--parchment-light);
+    border: 1px solid var(--ink-faded);
+    padding: 5px;
+    margin: 5px auto;
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .graph-caption {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 10px;
+    color: var(--ink-faded);
+    margin-bottom: 5px;
+  }
+
+  .insights-box {
+    background: var(--parchment-light);
+    border: 1px solid var(--ink-faded);
+    padding: 10px;
+    text-align: left;
+    font-family: Georgia, serif;
+    font-size: 11px;
+    line-height: 1.3;
+    margin-top: 5px;
+    color: #e6dcce;
+  }
+
+  .insights-box h4 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--ink-gold);
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .action-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .vault-section {
+    margin-top: 12px;
+    border-top: 1px dashed #4a3b2c;
+    padding-top: 12px;
+    text-align: left;
+  }
+
+  .vault-box {
+    background: #19130e;
+    border: 1px solid #4a3b2c;
+    padding: 10px;
+    margin-top: 8px;
+    max-height: 95px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .vault-box.visible {
+    display: block;
+  }
+
+  .vault-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--ink-faded);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .vault-item {
+    font-family: Georgia, serif;
+    font-size: 11px;
+    color: #bfa878;
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    border-bottom: 1px dashed #2c221a;
+  }
+
+  .reg-box {
+    background: #19130e;
+    border: 1px solid var(--ink-gold);
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+    text-align: left;
+  }
+
+  .reg-box.visible {
+    display: block;
+  }
+
+  .reg-input {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 10px 0;
+    background: #120e0a;
+    border: 1px solid #4a3b2c;
+    color: var(--ink-gold);
+    font-family: Georgia, serif;
+    box-sizing: border-box;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="tome-container">
+
+  <!-- INTRO SCREEN -->
+  <section id="intro" class="screen active">
+    <div class="tome-header">The Archives of Esperiel</div>
+    <h1 class="hero-title">How do you truly express yourself?</h1>
+    <p class="lede">A balanced exploration of your conversational voice. Discover your communication strengths and areas for growth.</p>
+
+    <div class="dims-preview">
+      <div class="dim-chip">Clarity</div>
+      <div class="dim-chip">Confidence</div>
+      <div class="dim-chip">Connection</div>
+      <div class="dim-chip">Composure</div>
+      <div class="dim-chip">Curiosity</div>
+      <div class="dim-chip">Conviction</div>
+    </div>
+
+    <div class="spell-seal">
+      <button class="btn-magical" onclick="startAssessment()">Begin the Assessment</button>
+      <div class="meta-scroll">Takes under 3 minutes. Instant visual profile mapping.</div>
+    </div>
+  </section>
+
+  <!-- TRIAL SCREEN -->
+  <section id="quiz" class="screen">
+    <div class="prophecy-tracker" id="trialTracker">Step I of XII</div>
+
+    <div class="parchment-page">
+      <div class="scroll-dimension" id="scrollDimension">Clarity</div>
+      <div class="scroll-question" id="scrollQuestion"></div>
+      <div class="scroll-options" id="scrollOptions"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS SCREEN -->
+  <section id="results" class="screen">
+    <div class="results-page">
+
+      <!-- Snapshot Capture Container in Instagram Story 9:16 Ratio (Includes Profile Title, Subtitle, Graph, and Suggestions) -->
+      <div id="shareableCard">
+        <div>
+          <div class="tome-header" style="margin-bottom:4px;">The Esperiel Index</div>
+          <h2 class="results-title" id="archetypeName">The Pragmatic Communicator</h2>
+          <p class="results-subtitle" id="archetypeDesc">You balance practical explanations with careful listening, adapting your tone dynamically.</p>
+        </div>
+        
+        <div>
+          <div class="radar-box">
+            <canvas id="radarCanvas" width="210" height="190"></canvas>
+          </div>
+          <div class="graph-caption">Communication Balance Polygon</div>
+        </div>
+
+        <div class="insights-box">
+          <h4>Growth Scope & Improvement Areas</h4>
+          <p id="growthSuggestionsText" style="margin: 0; font-style: italic;"></p>
+        </div>
+      </div>
+      <!-- End of Snapshot Container -->
+
+      <!-- Action Grid -->
+      <div class="action-grid">
+        <button class="btn-magical" style="margin-top:0;" onclick="challengeFriend()">Challenge Friend</button>
+        <button class="btn-magical" style="margin-top:0;" onclick="shareToStorySnapshot()">Share to Story</button>
+      </div>
+
+      <div class="action-grid">
+        <button class="btn-magical" style="margin-top:0; background: var(--parchment-light);" onclick="toggleRegistrationForm()">Improve Now</button>
+        <button class="btn-magical" style="margin-top:0; background: var(--parchment-light);" onclick="location.reload()">Retake Test</button>
+      </div>
+
+      <!-- Registration Box -->
+      <div class="reg-box" id="registrationBox">
+        <div class="vault-title">Unlock Your Masterclass Curriculum</div>
+        <label style="font-size:12px; font-style:italic; color:var(--ink-faded);">Your Name or Alias:</label>
+        <input type="text" id="regName" class="reg-input" placeholder="e.g., Alistair">
+        <label style="font-size:12px; font-style:italic; color:var(--ink-faded);">Email for Complete Guild Curriculum:</label>
+        <input type="email" id="regEmail" class="reg-input" placeholder="name@domain.com">
+        <button class="btn-magical" style="margin-top:4px;" onclick="completeRegistration()">Begin Improvement Path</button>
+      </div>
+
+      <!-- Past Records Vault -->
+      <div class="vault-section">
+        <button class="btn-magical" style="background: transparent; border-color: #4a3b2c; color: var(--ink-faded); margin-top: 0;" onclick="toggleVault()">Consult Chronicle Archives</button>
+        <div class="vault-box" id="vaultBoxContainer">
+          <div class="vault-title">Historical Chronicle Records</div>
+          <div id="vaultList"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<script>
+const trialData = [
+  {
+    dimension: "Clarity",
+    text: "I prioritize keeping explanations ultra-brief, even if it skips minor supporting context.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Clarity",
+    text: "I naturally use real-world analogies to ensure people grasp complex points instantly.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Confidence",
+    text: "When interrupted in a discussion, I calmly hold my ground and reclaim my turn.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Confidence",
+    text: "Admitting a mistake out loud to a group makes me deeply hesitant or flustered.",
+    choices: [
+      { text: "Strongly Disagree", score: 5 },
+      { text: "Disagree", score: 4 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 2 },
+      { text: "Strongly Agree", score: 1 }
+    ]
+  },
+  {
+    dimension: "Connection",
+    text: "I actively draw quiet participants into conversations to make sure they feel included.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Connection",
+    text: "I prefer keeping professional interactions strictly task-oriented rather than personal.",
+    choices: [
+      { text: "Strongly Disagree", score: 5 },
+      { text: "Disagree", score: 4 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 2 },
+      { text: "Strongly Agree", score: 1 }
+    ]
+  },
+  {
+    dimension: "Composure",
+    text: "When a room grows tense during a disagreement, my voice naturally lowers to steady the mood.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Composure",
+    text: "Unexpected tight deadlines cause me to feel rushed and mentally scattered.",
+    choices: [
+      { text: "Strongly Disagree", score: 5 },
+      { text: "Disagree", score: 4 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 2 },
+      { text: "Strongly Agree", score: 1 }
+    ]
+  },
+  {
+    dimension: "Curiosity",
+    text: "I make a deliberate effort to understand opposing viewpoints before forming a judgment.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Curiosity",
+    text: "Once I find a workflow or routine that works, I rarely look for alternative methods.",
+    choices: [
+      { text: "Strongly Disagree", score: 5 },
+      { text: "Disagree", score: 4 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 2 },
+      { text: "Strongly Agree", score: 1 }
+    ]
+  },
+  {
+    dimension: "Conviction",
+    text: "I hold firm to my core principles even when my team or peers express heavy doubt.",
+    choices: [
+      { text: "Strongly Disagree", score: 1 },
+      { text: "Disagree", score: 2 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 4 },
+      { text: "Strongly Agree", score: 5 }
+    ]
+  },
+  {
+    dimension: "Conviction",
+    text: "I tend to adjust my opinions during group discussions just to keep overall harmony.",
+    choices: [
+      { text: "Strongly Disagree", score: 5 },
+      { text: "Disagree", score: 4 },
+      { text: "Neutral", score: 3 },
+      { text: "Agree", score: 2 },
+      { text: "Strongly Agree", score: 1 }
+    ]
+  }
+];
+
+let currentTrial = 0;
+let dimensionScores = {
+  "Clarity": [],
+  "Confidence": [],
+  "Connection": [],
+  "Composure": [],
+  "Curiosity": [],
+  "Conviction": []
+};
+let globalDimPercentages = {};
+
+function startAssessment() {
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  revealTrial();
+}
+
+function revealTrial() {
+  if (currentTrial >= trialData.length) {
+    showResults();
+    return;
+  }
+
+  const trial = trialData[currentTrial];
+  document.getElementById('scrollDimension').textContent = trial.dimension;
+  document.getElementById('scrollQuestion').textContent = trial.text;
+  document.getElementById('trialTracker').textContent = `Step ${currentTrial + 1} of ${trialData.length}`;
+
+  const container = document.getElementById('scrollOptions');
+  container.innerHTML = '';
+
+  trial.choices.forEach((choice) => {
+    const btn = document.createElement('button');
+    btn.className = 'scroll-option-btn';
+    btn.textContent = choice.text;
+    btn.onclick = () => {
+      dimensionScores[trial.dimension].push(choice.score);
+      currentTrial++;
+      revealTrial();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function showResults() {
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('results').classList.add('active');
+
+  let overallSum = 0;
+  let count = 0;
+
+  for (const [dim, scores] of Object.entries(dimensionScores)) {
+    const avg = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    const percent = Math.round((avg / 5) * 100);
+    globalDimPercentages[dim] = percent;
+    overallSum += percent;
+    count++;
+  }
+
+  const overallAvg = Math.round(overallSum / count);
+
+  let lowestDim = Object.keys(globalDimPercentages)[0];
+  let lowestVal = globalDimPercentages[lowestDim];
+  for (const [dim, val] of Object.entries(globalDimPercentages)) {
+    if (val < lowestVal) {
+      lowestVal = val;
+      lowestDim = dim;
+    }
+  }
+
+  let suggestionsMap = {
+    "Clarity": "Scope for improvement: Try structuring explanations using the headline first technique before diving into deep supporting context.",
+    "Confidence": "Scope for improvement: Practice holding eye contact slightly longer and pausing before answering interruptions to project firmer command.",
+    "Connection": "Scope for improvement: Invite quieter participants explicitly into ongoing group exchanges to strengthen relationship loops.",
+    "Composure": "Scope for improvement: Introduce 3-second breathing pauses before replying during heated or high-pressure discussions.",
+    "Curiosity": "Scope for improvement: Consciously ask one exploratory question before formulating critiques.",
+    "Conviction": "Scope for improvement: Build stronger conviction by writing out your core rationale before entering high-stakes group debates."
+  };
+
+  let title = "The Pragmatic Communicator";
+  let desc = "You balance practical explanations with careful listening, adapting your tone dynamically.";
+  
+  if (globalDimPercentages["Connection"] >= 75 && globalDimPercentages["Composure"] >= 75) {
+    title = "The Empathetic Anchor";
+    desc = "You bring steady emotional clarity to conversations, ensuring everyone feels grounded and heard.";
+  } else if (globalDimPercentages["Curiosity"] >= 75 && globalDimPercentages["Clarity"] >= 75) {
+    title = "The Adaptive Pathfinder";
+    desc = "You blend active inquiry with concise framing, helping teams navigate tricky concepts smoothly.";
+  }
+
+  document.getElementById('archetypeName').textContent = title;
+  document.getElementById('archetypeDesc').textContent = desc;
+  document.getElementById('growthSuggestionsText').textContent = suggestionsMap[lowestDim] || "Scope for improvement: Focus on balancing your conversational pacing.";
+
+  animateRadarChart(globalDimPercentages);
+
+  saveRecordToVault(overallAvg, title);
+  loadVaultRecords();
+}
+
+function animateRadarChart(scores) {
+  const canvas = document.getElementById('radarCanvas');
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radius = 60;
+  const axes = ["Clarity", "Confidence", "Connection", "Composure", "Curiosity", "Conviction"];
+  const numAxes = axes.length;
+
+  let progress = 0;
+  function drawFrame() {
+    progress += 0.08;
+    if (progress > 1) progress = 1;
+
+    ctx.clearRect(0, 0, width, height);
+
+    for (let level = 1; level <= 5; level++) {
+      const r = (radius / 5) * level;
+      ctx.beginPath();
+      for (let i = 0; i < numAxes; i++) {
+        const angle = (Math.PI * 2 / numAxes) * i - Math.PI / 2;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = level === 5 ? '#bfa878' : '#3c2e21';
+      ctx.lineWidth = level === 5 ? 1.2 : 0.8;
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < numAxes; i++) {
+      const angle = (Math.PI * 2 / numAxes) * i - Math.PI / 2;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = '#3c2e21';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      ctx.font = '9px Georgia, serif';
+      ctx.fillStyle = '#dfc288';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const labelRadius = radius + 15;
+      const lx = centerX + labelRadius * Math.cos(angle);
+      const ly = centerY + labelRadius * Math.sin(angle);
+      ctx.fillText(axes[i], lx, ly);
+    }
+
+    ctx.beginPath();
+    let userPoints = [];
+    for (let i = 0; i < numAxes; i++) {
+      const targetVal = scores[axes[i]] || 50;
+      const currentVal = targetVal * progress;
+      const r = (currentVal / 100) * radius;
+      const angle = (Math.PI * 2 / numAxes) * i - Math.PI / 2;
+      const x = centerX + r * Math.cos(angle);
+      const y = centerY + r * Math.sin(angle);
+      userPoints.push({x, y});
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    
+    ctx.fillStyle = 'rgba(122, 138, 106, 0.4)';
+    ctx.fill();
+    ctx.strokeStyle = '#5a7049';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    userPoints.forEach(pt => {
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#dfc288';
+      ctx.fill();
+    });
+
+    if (progress < 1) {
+      requestAnimationFrame(drawFrame);
+    }
+  }
+  requestAnimationFrame(drawFrame);
+}
+
+function saveRecordToVault(score, archetype) {
+  let vault = JSON.parse(localStorage.getItem('esperiel_vault') || '[]');
+  const timestamp = new Date().toLocaleDateString();
+  vault.unshift({ date: timestamp, score: score, title: archetype, scores: {...globalDimPercentages} });
+  if (vault.length > 5) vault.pop();
+  localStorage.setItem('esperiel_vault', JSON.stringify(vault));
+}
+
+function loadVaultRecords() {
+  let vault = JSON.parse(localStorage.getItem('esperiel_vault') || '[]');
+  const listContainer = document.getElementById('vaultList');
+  if (vault.length === 0) {
+    listContainer.innerHTML = '<div class="vault-item"><span>No past records found yet.</span></div>';
+    return;
+  }
+  let html = '';
+  vault.forEach((rec, idx) => {
+    html += `<div class="vault-item"><span>Chronicle #${idx+1} (${rec.date}) - ${rec.title}</span> <strong>Score: ${rec.score}</strong></div>`;
+  });
+  listContainer.innerHTML = html;
+}
+
+function toggleVault() {
+  const vault = document.getElementById('vaultBoxContainer');
+  vault.classList.toggle('visible');
+}
+
+function toggleRegistrationForm() {
+  const box = document.getElementById('registrationBox');
+  box.classList.toggle('visible');
+}
+
+function completeRegistration() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  if(!name || !email) {
+    alert("Please enter both your name and email to register your profile.");
+    return;
+  }
+  alert(`Thank you, ${name}. Your improvement path has been officially registered to the Esperiel Archives.`);
+  document.getElementById('registrationBox').classList.remove('visible');
+}
+
+function challengeFriend() {
+  const title = document.getElementById('archetypeName').innerText;
+  const text = `I challenge you to test your communication skills on The Esperiel Index. My archetype is '${title}'. Can you beat my score?`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Challenge text copied to clipboard. Send it to your friend.");
+  });
+}
+
+// Generates an image snapshot in exact 9:16 Instagram Story ratio of the result card
+function shareToStorySnapshot() {
+  const cardElement = document.getElementById('shareableCard');
+  
+  html2canvas(cardElement, {
+    backgroundColor: '#1f1812',
+    scale: 3
+  }).then(canvas => {
+    canvas.toBlob(blob => {
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item]).then(() => {
+        alert("Result card story image copied to your clipboard. Paste it straight into your Instagram story.");
+      }).catch(err => {
+        let link = document.createElement('a');
+        link.download = 'esperiel-story-card.png';
+        link.href = canvas.toDataURL();
+        link.click();
+        alert("Story image downloaded to your device. Upload it straight to your story.");
+      });
+    });
+  }).catch(err => {
+    alert("Could not generate story image automatically. Try taking a manual screenshot.");
+  });
+}
+
+window.onload = () => {
+  loadVaultRecords();
+};
+</script>
+</body>
+</html>
